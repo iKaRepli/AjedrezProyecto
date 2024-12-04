@@ -1,0 +1,1 @@
+g++ -Iinclude -o ajedrez src/main.cpp src/tableroClass.cpp src/tablero.cpp src/piezas.cpp -lallegro -lallegro_image -lallegro_primitives -lstdc++ -lm -lpthread  
