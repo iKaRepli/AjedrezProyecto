@@ -61,7 +61,7 @@ int main()
                 }
             }
             tablero.dibujar();
-            al_rest(0.004); // 60 FPS
+            al_rest(0.001); // 60 FPS
         }
     }
     catch (const std::exception &e)
