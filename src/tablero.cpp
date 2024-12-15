@@ -16,12 +16,14 @@ if (movimiento) {
                 }
             }
 }
-static ALLEGRO_BITMAP* torre_imagen = nullptr;
+static ALLEGRO_BITMAP* torre_imagen = nullptr; 
 static ALLEGRO_BITMAP* torre_negra_imagen = nullptr;
 static ALLEGRO_BITMAP* rey_negro_imagen = nullptr;
 static ALLEGRO_BITMAP* rey_blanco_imagen = nullptr;
-static ALLEGRO_BITMAP* alfil_imagen = nullptr; // Nuevo
-static ALLEGRO_BITMAP* alfil_negro_imagen = nullptr; // Nuevo
+static ALLEGRO_BITMAP* alfil_imagen = nullptr; 
+static ALLEGRO_BITMAP* alfil_negro_imagen = nullptr; 
+static ALLEGRO_BITMAP* peon_negro_imagen = nullptr; // Nuevo
+static ALLEGRO_BITMAP* peon_blanco_imagen = nullptr; // Nuevo
 
 void inicializarRecursosTablero() {
     torre_imagen = al_load_bitmap("assets/torre.png");
@@ -59,6 +61,18 @@ void inicializarRecursosTablero() {
         printf("Error: No se pudo cargar la imagen alfil_negro.png\n");
         exit(1); // Finaliza el programa si no se encuentra la imagen
     }
+
+    peon_blanco_imagen = al_load_bitmap("assets/peon_blanco.png"); // Nuevo
+    if (!peon_blanco_imagen) {
+        printf("Error: No se pudo cargar la imagen peon_blanco.png\n");
+        exit(1); // Finaliza el programa si no se encuentra la imagen
+    }
+
+    peon_negro_imagen = al_load_bitmap("assets/peon_negro.png"); // Nuevo
+    if (!peon_negro_imagen) {
+        printf("Error: No se pudo cargar la imagen peon_negro.png\n");
+        exit(1); // Finaliza el programa si no se encuentra la imagen
+    }
 }
 
 void liberarRecursosTablero() {
@@ -86,9 +100,18 @@ void liberarRecursosTablero() {
         al_destroy_bitmap(alfil_negro_imagen);
         alfil_negro_imagen = nullptr;
     }
+    if (peon_blanco_imagen) { // Nuevo
+        al_destroy_bitmap(peon_blanco_imagen);
+        peon_blanco_imagen = nullptr;
+    }
+    if (peon_negro_imagen) { // Nuevo
+        al_destroy_bitmap(peon_negro_imagen);
+        peon_negro_imagen = nullptr;
+    }
 }
 
-void dibujarPieza(int pieza, int x, int y) {
+void dibujarPieza(int pieza, int x, int y,int turno) {
+    
     if (pieza == 0) {
         // Casilla vacía, no se dibuja nada.
         return;
@@ -115,6 +138,12 @@ void dibujarPieza(int pieza, int x, int y) {
     case -2: // Nuevo
         bitmap = alfil_negro_imagen;
         break;
+    case 1: // Nuevo
+        bitmap = peon_blanco_imagen;
+        break;
+    case -1: // Nuevo
+        bitmap = peon_negro_imagen;
+        break;
     default:
         printf("Advertencia: pieza no reconocida (%d).\n", pieza);
         return;
@@ -123,14 +152,14 @@ void dibujarPieza(int pieza, int x, int y) {
     if (bitmap) {
         al_draw_scaled_bitmap(
             bitmap,
-            0, 0,                            // Usar toda la imagen original
-            al_get_bitmap_width(bitmap),     // Ancho original
-            al_get_bitmap_height(bitmap),    // Altura original
-            x - TAMANO_CASILLA / 2,          // Coordenada X
-            y - TAMANO_CASILLA / 2,          // Coordenada Y
-            TAMANO_CASILLA,                  // Tamaño ancho
-            TAMANO_CASILLA,                  // Tamaño alto
-            0                                // Sin banderas especiales
+            0, 0,                            
+            al_get_bitmap_width(bitmap),
+            al_get_bitmap_height(bitmap),
+            x - TAMANO_CASILLA / 2,
+            y - TAMANO_CASILLA / 2,
+            TAMANO_CASILLA,
+            TAMANO_CASILLA,
+            0
         );
     }
 }
@@ -144,16 +173,47 @@ void inicializarTablero(Casilla tablero[8][8]) {
             tablero[fila][col].movimiento_valido = false;
         }
     }
-    tablero[3][2].pieza = -4;
-    tablero[3][5].pieza = 4;
-    tablero[1][2].pieza = -4;
-    tablero[2][2].pieza = REY_BLANCO;
-    tablero[1][5].pieza = REY_NEGRO;
-    tablero[4][1].pieza = ALFIL_BLANCO;
-    tablero[4][2].pieza = ALFIL_NEGRO;
+    
+    // Peones blancos
+// Peones blancos
+tablero[6][0].pieza = PEON_BLANCO;
+tablero[6][1].pieza = PEON_BLANCO;
+tablero[6][2].pieza = PEON_BLANCO;
+tablero[6][3].pieza = PEON_BLANCO;
+tablero[6][4].pieza = PEON_BLANCO;
+tablero[6][5].pieza = PEON_BLANCO;
+tablero[6][6].pieza = PEON_BLANCO;
+tablero[6][7].pieza = PEON_BLANCO;
+
+// Peones negros
+tablero[1][0].pieza = PEON_NEGRO;
+tablero[1][1].pieza = PEON_NEGRO;
+tablero[1][2].pieza = PEON_NEGRO;
+tablero[1][3].pieza = PEON_NEGRO;
+tablero[1][4].pieza = PEON_NEGRO;
+tablero[1][5].pieza = PEON_NEGRO;
+tablero[1][6].pieza = PEON_NEGRO;
+tablero[1][7].pieza = PEON_NEGRO;
+
+// Piezas blancas
+tablero[7][0].pieza = TORRE_BLANCA;
+tablero[7][7].pieza = TORRE_BLANCA;
+tablero[7][2].pieza = ALFIL_BLANCO;
+tablero[7][5].pieza = ALFIL_BLANCO;
+tablero[7][4].pieza = REY_BLANCO;
+
+// Piezas negras
+tablero[0][0].pieza = TORRE_NEGRA;
+tablero[0][7].pieza = TORRE_NEGRA;
+tablero[0][2].pieza = ALFIL_NEGRO;
+tablero[0][5].pieza = ALFIL_NEGRO;
+tablero[0][4].pieza = REY_NEGRO;
+
+
+    
 }
 
-void dibujarTablero(Casilla tablero[8][8]) {
+void dibujarTablero(Casilla tablero[8][8],int turno) {
     for (int fila = 0; fila < 8; ++fila) {
         for (int col = 0; col < 8; ++col) {
             int x = col * TAMANO_CASILLA;
@@ -182,7 +242,7 @@ void dibujarTablero(Casilla tablero[8][8]) {
 
             // Dibujar pieza
             if (tablero[fila][col].pieza != 0) {
-                dibujarPieza(tablero[fila][col].pieza, x + TAMANO_CASILLA / 2, y + TAMANO_CASILLA / 2);
+                dibujarPieza(tablero[fila][col].pieza, x + TAMANO_CASILLA / 2, y + TAMANO_CASILLA / 2, turno);
             }
         }
     }

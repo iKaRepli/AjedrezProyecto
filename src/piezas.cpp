@@ -5,6 +5,25 @@
 #include <stdexcept>
 
 
+bool esMovimientoValidoPeon(Casilla tablero[8][8], int fila, int col, int reyFila, int reyCol)
+{
+    // Determinar dirección del peón (1 para blanco, -1 para negro)
+    int direccion = (tablero[fila][col].pieza > 0) ? -1 : 1;
+
+    // Captura diagonal: verificar si el rey está en una posición capturable
+    for (int dx = -1; dx <= 1; dx += 2) // -1 para izquierda, 1 para derecha
+    {
+        int nuevaFila = fila + direccion;
+        int nuevaCol = col + dx;
+
+        if (nuevaFila == reyFila && nuevaCol == reyCol)
+        {
+            return true; // El rey está en peligro
+        }
+    }
+
+    return false; // El movimiento no amenaza al rey
+}
 
 bool esMovimientoValidoTorre(Casilla tablero[8][8], int fila, int col, int reyFila, int reyCol)
 {
@@ -309,4 +328,62 @@ void calcularMovimientosTorre(Casilla tablero[8][8], int fila, int col)
         }
     }
 }
+
+// Calcular movimientos válidos para un peón
+void calcularMovimientosPeon(Casilla tablero[8][8], int fila, int col)
+{
+    // Limpiar movimientos válidos antes de calcular
+    for (int i = 0; i < 8; ++i)
+    {
+        for (int j = 0; j < 8; ++j)
+        {
+            tablero[i][j].movimiento_valido = false;
+        }
+    }
+
+    // Determinar dirección del peón (1 para blanco, -1 para negro)
+    int direccion = (tablero[fila][col].pieza > 0) ? -1 : 1;
+
+    // Movimiento simple hacia adelante
+    int nuevaFila = fila + direccion;
+    if (nuevaFila >= 0 && nuevaFila < 8 && tablero[nuevaFila][col].pieza == CASILLA_VACIA)
+    {
+        if (!exponeReyAJaque(tablero, fila, col, nuevaFila, col))
+        {
+            tablero[nuevaFila][col].movimiento_valido = true;
+        }
+    }
+
+    // Movimiento inicial de dos casillas
+    if ((fila == 6 && direccion == -1) || (fila == 1 && direccion == 1))
+    {
+        int dobleFila = fila + 2 * direccion;
+        if (tablero[nuevaFila][col].pieza == CASILLA_VACIA && tablero[dobleFila][col].pieza == CASILLA_VACIA)
+        {
+            if (!exponeReyAJaque(tablero, fila, col, dobleFila, col))
+            {
+                tablero[dobleFila][col].movimiento_valido = true;
+            }
+        }
+    }
+
+    // Captura diagonal
+    for (int dx = -1; dx <= 1; dx += 2) // -1 para izquierda, 1 para derecha
+    {
+        int nuevaCol = col + dx;
+        if (nuevaFila >= 0 && nuevaFila < 8 && nuevaCol >= 0 && nuevaCol < 8)
+        {
+            if ((tablero[fila][col].pieza > 0 && tablero[nuevaFila][nuevaCol].pieza < 0) ||
+                (tablero[fila][col].pieza < 0 && tablero[nuevaFila][nuevaCol].pieza > 0))
+            {
+                if (!exponeReyAJaque(tablero, fila, col, nuevaFila, nuevaCol))
+                {
+                    tablero[nuevaFila][nuevaCol].movimiento_valido = true;
+                }
+            }
+        }
+    }
+}
+
+
 

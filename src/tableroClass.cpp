@@ -13,6 +13,7 @@ private:
     bool holding = false;
     int fila_down = -1, col_down = -1;
     int piezaInicial = 0;
+    int turno = BLANCAS;
 
 public:
     Tablero()
@@ -32,7 +33,7 @@ public:
         {
         case ALLEGRO_EVENT_MOUSE_BUTTON_DOWN:
             manejarMouseDown(event);
-            printf("Peedamsd");
+            
             break;
 
         case ALLEGRO_EVENT_MOUSE_AXES:
@@ -53,12 +54,15 @@ public:
     void dibujar()
     {
         al_clear_to_color(al_map_rgb(255, 255, 255));
-        dibujarTablero(tablero);
+        dibujarTablero(tablero,turno);
         ALLEGRO_MOUSE_STATE mouseState;
         al_get_mouse_state(&mouseState); // Capturamos el estado del mouse
         int mouse_x = mouseState.x;     // Obtenemos la posición X
         int mouse_y = mouseState.y;     // Obtenemos la posición Y
-        dibujarPieza(piezaInicial, mouse_x, mouse_y);
+        printf("%d %d\n",turno,piezaInicial);
+        if(turno * piezaInicial > 0){
+        dibujarPieza(piezaInicial, mouse_x, mouse_y, turno);
+    }
         al_flip_display();
     }
 
@@ -67,29 +71,40 @@ private:
 {
     fila_down = event.mouse.y / TAMANO_CASILLA;
     col_down = event.mouse.x / TAMANO_CASILLA;
+    piezaInicial = tablero[fila_down][col_down].pieza;
+    if ((turno == BLANCAS && piezaInicial > 0) ||
+        (turno == NEGRAS && piezaInicial < 0)) {
+        
+        int tipoPieza = std::abs(piezaInicial); // Ignorar el color para identificar tipo
 
-    // Verifica si se seleccionó una torre
-    if (tablero[fila_down][col_down].pieza == TORRE_BLANCA || tablero[fila_down][col_down].pieza == TORRE_NEGRA)
-    {
-        calcularMovimientosTorre(tablero, fila_down, col_down);
-        piezaInicial = tablero[fila_down][col_down].pieza;
+        switch (tipoPieza) {
+            case 4:
+                calcularMovimientosTorre(tablero, fila_down, col_down);
+                break;
+
+            case 6:
+                calcularMovimientosRey(tablero, fila_down, col_down);
+                break;
+
+            case 2:
+                calcularMovimientosAlfil(tablero, fila_down, col_down);
+                break;
+
+            case 1:
+                calcularMovimientosPeon(tablero, fila_down, col_down);
+                break;
+
+            default:
+                printf("Pieza no manejada: %d\n", tipoPieza);
+                return; // Salir si la pieza no está implementada
+        }
+
+        // Configurar estado "holding" y limpiar la casilla
+        piezaInicial = piezaInicial;
         tablero[fila_down][col_down].pieza = 0;
         holding = true;
     }
-    // Verifica si se seleccionó un rey
-    else if (tablero[fila_down][col_down].pieza == REY_BLANCO || tablero[fila_down][col_down].pieza == REY_NEGRO)
-    {
-        calcularMovimientosRey(tablero, fila_down, col_down); 
-        piezaInicial = tablero[fila_down][col_down].pieza;
-        tablero[fila_down][col_down].pieza = 0;
-        holding = true;
-    }else if (tablero[fila_down][col_down].pieza == ALFIL_BLANCO || tablero[fila_down][col_down].pieza == ALFIL_NEGRO)
-    {
-        calcularMovimientosAlfil(tablero, fila_down, col_down); 
-        piezaInicial = tablero[fila_down][col_down].pieza;
-        tablero[fila_down][col_down].pieza = 0;
-        holding = true;
-    }
+    
     else
     {
         limpiarMovimientosValidos();
@@ -100,7 +115,11 @@ private:
     {
         if (holding)
         {
-            dibujar();
+            if(piezaInicial * turno > 0){
+                int asd = piezaInicial * turno;
+                printf("%d",asd);
+                
+            }
         }
     }
 
@@ -112,6 +131,7 @@ private:
         if (tablero[fila_up][col_up].movimiento_valido)
         {
             tablero[fila_up][col_up].pieza = piezaInicial;
+            turno = turno * -1;
         }
         else
         {
@@ -121,7 +141,6 @@ private:
         limpiarMovimientosValidos();
         holding = false;
         piezaInicial = 0;
-        dibujar();
     }
 
     void limpiarMovimientosValidos()

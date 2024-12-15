@@ -19,6 +19,11 @@ enum ColorCasilla {
     COLOR_TOMAR_PIEZA
 };
 
+enum Turno{
+    BLANCAS = 1,
+    NEGRAS = -1
+};
+
 enum Pieza {
     CASILLA_VACIA = 0,
     PEON_BLANCO = 1,
@@ -42,8 +47,8 @@ enum Pieza {
 void inicializarRecursosTablero(); // Carga las imágenes necesarias
 void liberarRecursosTablero();
 void inicializarTablero(Casilla tablero[8][8]);
-void dibujarTablero(Casilla tablero[8][8]);
-void dibujarPieza(int pieza, int x, int y);
+void dibujarTablero(Casilla tablero[8][8],int turno);
+void dibujarPieza(int pieza, int x, int y,int turno);
 
 
 
