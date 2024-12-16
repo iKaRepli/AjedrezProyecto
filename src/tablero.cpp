@@ -16,62 +16,91 @@ if (movimiento) {
                 }
             }
 }
-static ALLEGRO_BITMAP* torre_imagen = nullptr; 
+
+static ALLEGRO_BITMAP* torre_imagen = nullptr;
 static ALLEGRO_BITMAP* torre_negra_imagen = nullptr;
 static ALLEGRO_BITMAP* rey_negro_imagen = nullptr;
 static ALLEGRO_BITMAP* rey_blanco_imagen = nullptr;
-static ALLEGRO_BITMAP* alfil_imagen = nullptr; 
-static ALLEGRO_BITMAP* alfil_negro_imagen = nullptr; 
-static ALLEGRO_BITMAP* peon_negro_imagen = nullptr; // Nuevo
-static ALLEGRO_BITMAP* peon_blanco_imagen = nullptr; // Nuevo
+static ALLEGRO_BITMAP* alfil_imagen = nullptr;
+static ALLEGRO_BITMAP* alfil_negro_imagen = nullptr;
+static ALLEGRO_BITMAP* peon_negro_imagen = nullptr;
+static ALLEGRO_BITMAP* peon_blanco_imagen = nullptr;
+static ALLEGRO_BITMAP* reina_blanca_imagen = nullptr; // Nuevo
+static ALLEGRO_BITMAP* reina_negra_imagen = nullptr; // Nuevo
+static ALLEGRO_BITMAP* caballo_blanco_imagen = nullptr; // Nuevo
+static ALLEGRO_BITMAP* caballo_negro_imagen = nullptr; // Nuevo
 
 void inicializarRecursosTablero() {
     torre_imagen = al_load_bitmap("assets/torre.png");
     if (!torre_imagen) {
         printf("Error: No se pudo cargar la imagen torre.png\n");
-        exit(1); // Finaliza el programa si no se encuentra la imagen
+        exit(1);
     }
 
     torre_negra_imagen = al_load_bitmap("assets/torre_negra.png");
     if (!torre_negra_imagen) {
         printf("Error: No se pudo cargar la imagen torre_negra.png\n");
-        exit(1); // Finaliza el programa si no se encuentra la imagen
+        exit(1);
     }
 
     rey_blanco_imagen = al_load_bitmap("assets/rey_blanco.png");
     if (!rey_blanco_imagen) {
         printf("Error: No se pudo cargar la imagen rey_blanco.png\n");
-        exit(1); // Finaliza el programa si no se encuentra la imagen
+        exit(1);
     }
 
     rey_negro_imagen = al_load_bitmap("assets/rey_negro.png");
     if (!rey_negro_imagen) {
         printf("Error: No se pudo cargar la imagen rey_negro.png\n");
-        exit(1); // Finaliza el programa si no se encuentra la imagen
+        exit(1);
     }
 
-    alfil_imagen = al_load_bitmap("assets/alfil_blanco.png"); // Nuevo
+    alfil_imagen = al_load_bitmap("assets/alfil_blanco.png");
     if (!alfil_imagen) {
         printf("Error: No se pudo cargar la imagen alfil_blanco.png\n");
-        exit(1); // Finaliza el programa si no se encuentra la imagen
+        exit(1);
     }
 
-    alfil_negro_imagen = al_load_bitmap("assets/alfil_negro.png"); // Nuevo
+    alfil_negro_imagen = al_load_bitmap("assets/alfil_negro.png");
     if (!alfil_negro_imagen) {
         printf("Error: No se pudo cargar la imagen alfil_negro.png\n");
-        exit(1); // Finaliza el programa si no se encuentra la imagen
+        exit(1);
     }
 
-    peon_blanco_imagen = al_load_bitmap("assets/peon_blanco.png"); // Nuevo
+    peon_blanco_imagen = al_load_bitmap("assets/peon_blanco.png");
     if (!peon_blanco_imagen) {
         printf("Error: No se pudo cargar la imagen peon_blanco.png\n");
-        exit(1); // Finaliza el programa si no se encuentra la imagen
+        exit(1);
     }
 
-    peon_negro_imagen = al_load_bitmap("assets/peon_negro.png"); // Nuevo
+    peon_negro_imagen = al_load_bitmap("assets/peon_negro.png");
     if (!peon_negro_imagen) {
         printf("Error: No se pudo cargar la imagen peon_negro.png\n");
-        exit(1); // Finaliza el programa si no se encuentra la imagen
+        exit(1);
+    }
+
+    reina_blanca_imagen = al_load_bitmap("assets/reina_blanca.png");
+    if (!reina_blanca_imagen) {
+        printf("Error: No se pudo cargar la imagen reina_blanca.png\n");
+        exit(1);
+    }
+
+    reina_negra_imagen = al_load_bitmap("assets/reina_negra.png");
+    if (!reina_negra_imagen) {
+        printf("Error: No se pudo cargar la imagen reina_negra.png\n");
+        exit(1);
+    }
+
+    caballo_blanco_imagen = al_load_bitmap("assets/caballo_blanco.png");
+    if (!caballo_blanco_imagen) {
+        printf("Error: No se pudo cargar la imagen caballo_blanco.png\n");
+        exit(1);
+    }
+
+    caballo_negro_imagen = al_load_bitmap("assets/caballo_negro.png");
+    if (!caballo_negro_imagen) {
+        printf("Error: No se pudo cargar la imagen caballo_negro.png\n");
+        exit(1);
     }
 }
 
@@ -92,26 +121,41 @@ void liberarRecursosTablero() {
         al_destroy_bitmap(rey_negro_imagen);
         rey_negro_imagen = nullptr;
     }
-    if (alfil_imagen) { // Nuevo
+    if (alfil_imagen) {
         al_destroy_bitmap(alfil_imagen);
         alfil_imagen = nullptr;
     }
-    if (alfil_negro_imagen) { // Nuevo
+    if (alfil_negro_imagen) {
         al_destroy_bitmap(alfil_negro_imagen);
         alfil_negro_imagen = nullptr;
     }
-    if (peon_blanco_imagen) { // Nuevo
+    if (peon_blanco_imagen) {
         al_destroy_bitmap(peon_blanco_imagen);
         peon_blanco_imagen = nullptr;
     }
-    if (peon_negro_imagen) { // Nuevo
+    if (peon_negro_imagen) {
         al_destroy_bitmap(peon_negro_imagen);
         peon_negro_imagen = nullptr;
     }
+    if (reina_blanca_imagen) {
+        al_destroy_bitmap(reina_blanca_imagen);
+        reina_blanca_imagen = nullptr;
+    }
+    if (reina_negra_imagen) {
+        al_destroy_bitmap(reina_negra_imagen);
+        reina_negra_imagen = nullptr;
+    }
+    if (caballo_blanco_imagen) {
+        al_destroy_bitmap(caballo_blanco_imagen);
+        caballo_blanco_imagen = nullptr;
+    }
+    if (caballo_negro_imagen) {
+        al_destroy_bitmap(caballo_negro_imagen);
+        caballo_negro_imagen = nullptr;
+    }
 }
 
-void dibujarPieza(int pieza, int x, int y,int turno) {
-    
+void dibujarPieza(int pieza, int x, int y, int turno) {
     if (pieza == 0) {
         // Casilla vacía, no se dibuja nada.
         return;
@@ -120,29 +164,41 @@ void dibujarPieza(int pieza, int x, int y,int turno) {
     ALLEGRO_BITMAP* bitmap = nullptr;
 
     switch (pieza) {
-    case 4: 
+    case 4:
         bitmap = torre_imagen;
         break;
-    case -4: 
+    case -4:
         bitmap = torre_negra_imagen;
         break;
-    case 6: 
+    case 6:
         bitmap = rey_blanco_imagen;
         break;
-    case -6: 
+    case -6:
         bitmap = rey_negro_imagen;
         break;
-    case 2: // Nuevo
+    case 2:
         bitmap = alfil_imagen;
         break;
-    case -2: // Nuevo
+    case -2:
         bitmap = alfil_negro_imagen;
         break;
-    case 1: // Nuevo
+    case 1:
         bitmap = peon_blanco_imagen;
         break;
-    case -1: // Nuevo
+    case -1:
         bitmap = peon_negro_imagen;
+        break;
+    case 5: // Nuevo
+        bitmap = reina_blanca_imagen;
+        break;
+    case -5: // Nuevo
+        bitmap = reina_negra_imagen;
+        break;
+    case 3: // Nuevo
+        bitmap = caballo_blanco_imagen;
+        break;
+    case -3: // Nuevo
+        bitmap = caballo_negro_imagen;
         break;
     default:
         printf("Advertencia: pieza no reconocida (%d).\n", pieza);
@@ -152,7 +208,7 @@ void dibujarPieza(int pieza, int x, int y,int turno) {
     if (bitmap) {
         al_draw_scaled_bitmap(
             bitmap,
-            0, 0,                            
+            0, 0,
             al_get_bitmap_width(bitmap),
             al_get_bitmap_height(bitmap),
             x - TAMANO_CASILLA / 2,
@@ -197,17 +253,23 @@ tablero[1][7].pieza = PEON_NEGRO;
 
 // Piezas blancas
 tablero[7][0].pieza = TORRE_BLANCA;
-tablero[7][7].pieza = TORRE_BLANCA;
+tablero[7][1].pieza = CABALLO_BLANCO;
 tablero[7][2].pieza = ALFIL_BLANCO;
-tablero[7][5].pieza = ALFIL_BLANCO;
+tablero[7][3].pieza = REINA_BLANCA;
 tablero[7][4].pieza = REY_BLANCO;
+tablero[7][5].pieza = ALFIL_BLANCO;
+tablero[7][6].pieza = CABALLO_BLANCO;
+tablero[7][7].pieza = TORRE_BLANCA;
 
 // Piezas negras
 tablero[0][0].pieza = TORRE_NEGRA;
-tablero[0][7].pieza = TORRE_NEGRA;
+tablero[0][1].pieza = CABALLO_NEGRO;
 tablero[0][2].pieza = ALFIL_NEGRO;
-tablero[0][5].pieza = ALFIL_NEGRO;
+tablero[0][3].pieza = REINA_NEGRA;
 tablero[0][4].pieza = REY_NEGRO;
+tablero[0][5].pieza = ALFIL_NEGRO;
+tablero[0][6].pieza = CABALLO_NEGRO;
+tablero[0][7].pieza = TORRE_NEGRA;
 
 
     

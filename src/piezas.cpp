@@ -59,6 +59,74 @@ bool esMovimientoValidoTorre(Casilla tablero[8][8], int fila, int col, int reyFi
     }
     return false;
 }
+bool esMovimientoValidoCaballo(Casilla tablero[8][8], int fila, int col, int reyFila, int reyCol) {
+    // Movimientos posibles del caballo (en forma de "L")
+    const int movimientos[8][2] = {
+        {2, 1},   // Abajo derecha
+        {2, -1},  // Abajo izquierda
+        {-2, 1},  // Arriba derecha
+        {-2, -1}, // Arriba izquierda
+        {1, 2},   // Derecha abajo
+        {1, -2},  // Izquierda abajo
+        {-1, 2},  // Derecha arriba
+        {-1, -2}  // Izquierda arriba
+    };
+
+    for (int m = 0; m < 8; ++m) {
+        int x = fila + movimientos[m][0];
+        int y = col + movimientos[m][1];
+
+        // Verificar si el movimiento alcanza al rey
+        if (x == reyFila && y == reyCol) {
+            return true; // El rey está en peligro
+        }
+    }
+
+    return false; // El rey no está amenazado por este caballo
+}
+
+
+bool esMovimientoValidoReina(Casilla tablero[8][8], int fila, int col, int reyFila, int reyCol) {
+    // Direcciones de la reina: diagonales y rectas
+    const int direcciones[8][2] = {
+        {1, 1},   // Arriba derecha
+        {1, -1},  // Abajo derecha
+        {-1, 1},  // Arriba izquierda
+        {-1, -1}, // Abajo izquierda
+        {-1, 0},  // Arriba
+        {1, 0},   // Abajo
+        {0, -1},  // Izquierda
+        {0, 1}    // Derecha
+    };
+
+    for (int d = 0; d < 8; ++d) {
+        int dx = direcciones[d][0];
+        int dy = direcciones[d][1];
+        int x = fila, y = col;
+
+        while (true) {
+            x += dx;
+            y += dy;
+
+            // Verificar límites del tablero
+            if (x < 0 || x >= 8 || y < 0 || y >= 8)
+                break;
+
+            // Si encuentra al rey en la dirección, retorna true
+            if (x == reyFila && y == reyCol) {
+                return true; // El rey está en peligro
+            }
+
+            // Si encuentra otra pieza, detiene la exploración
+            if (tablero[x][y].pieza != CASILLA_VACIA) {
+                break; // Bloqueado por otra pieza
+            }
+        }
+    }
+
+    return false; // No hay amenaza al rey en estas direcciones
+}
+
 bool esMovimientoValidoAlfil(Casilla tablero[8][8], int fila, int col, int reyFila, int reyCol) {
     // Direcciones de movimiento del alfil: diagonales
     const int direcciones[4][2] = {
@@ -158,6 +226,31 @@ bool exponeReyAJaque(Casilla tablero[8][8], int origenFila, int origenCol, int d
                     {
                         enJaque = true;
                     }
+                    break;
+                case REINA_BLANCA:
+                case REINA_NEGRA:
+
+                 if (esMovimientoValidoReina(tablero, i, j, reyFila, reyCol))
+                    {
+                        enJaque = true;
+                    }
+                    break;
+                case PEON_BLANCO:
+                case PEON_NEGRO:
+
+                 if (esMovimientoValidoPeon(tablero, i, j, reyFila, reyCol))
+                    {
+                        enJaque = true;
+                    }
+                    break;
+                case CABALLO_BLANCO:
+                case CABALLO_NEGRO:
+
+                 if (esMovimientoValidoCaballo(tablero, i, j, reyFila, reyCol))
+                    {
+                        enJaque = true;
+                    }
+                    break;
 
                 default:
                     break;
@@ -183,8 +276,105 @@ bool exponeReyAJaque(Casilla tablero[8][8], int origenFila, int origenCol, int d
 
     return enJaque;
 }
+void calcularMovimientosCaballo(Casilla tablero[8][8], int fila, int col) {
+    // Limpiar movimientos válidos antes de calcular
+    for (int i = 0; i < 8; ++i) {
+        for (int j = 0; j < 8; ++j) {
+            tablero[i][j].movimiento_valido = false;
+        }
+    }
 
-void calcularMovimientosRey(Casilla tablero[8][8], int fila, int col)
+    // Movimientos posibles del caballo (en forma de "L")
+    const int movimientos[8][2] = {
+        {2, 1},   // Abajo derecha
+        {2, -1},  // Abajo izquierda
+        {-2, 1},  // Arriba derecha
+        {-2, -1}, // Arriba izquierda
+        {1, 2},   // Derecha abajo
+        {1, -2},  // Izquierda abajo
+        {-1, 2},  // Derecha arriba
+        {-1, -2}  // Izquierda arriba
+    };
+
+    for (int m = 0; m < 8; ++m) {
+        int x = fila + movimientos[m][0];
+        int y = col + movimientos[m][1];
+
+        // Verificar si está dentro del tablero
+        if (x < 0 || x >= 8 || y < 0 || y >= 8)
+            continue;
+
+        // Simular el movimiento y verificar jaque
+        if (tablero[x][y].pieza == CASILLA_VACIA) {
+            if (!exponeReyAJaque(tablero, fila, col, x, y)) {
+                tablero[x][y].movimiento_valido = true;
+            }
+        } else {
+            // Si es una pieza enemiga, verificar captura
+            if ((tablero[fila][col].pieza > 0 && tablero[x][y].pieza < 0) ||
+                (tablero[fila][col].pieza < 0 && tablero[x][y].pieza > 0)) {
+                if (!exponeReyAJaque(tablero, fila, col, x, y)) {
+                    tablero[x][y].movimiento_valido = true;
+                }
+            }
+        }
+    }
+}
+
+
+void calcularMovimientosReina(Casilla tablero[8][8], int fila, int col) {
+    // Limpiar movimientos válidos antes de calcular
+    for (int i = 0; i < 8; ++i) {
+        for (int j = 0; j < 8; ++j) {
+            tablero[i][j].movimiento_valido = false;
+        }
+    }
+
+    // Direcciones de la reina: combinamos diagonales y rectas
+    const int direcciones[8][2] = {
+        {1, 1},   // Arriba derecha
+        {1, -1},  // Abajo derecha
+        {-1, 1},  // Arriba izquierda
+        {-1, -1}, // Abajo izquierda
+        {-1, 0},  // Arriba
+        {1, 0},   // Abajo
+        {0, -1},  // Izquierda
+        {0, 1}    // Derecha
+    };
+
+    for (int d = 0; d < 8; ++d) {
+        int dx = direcciones[d][0];
+        int dy = direcciones[d][1];
+        int x = fila, y = col;
+
+        while (true) {
+            x += dx;
+            y += dy;
+
+            // Verificar si está fuera del tablero
+            if (x < 0 || x >= 8 || y < 0 || y >= 8)
+                break;
+
+            // Simular el movimiento y verificar jaque
+            if (tablero[x][y].pieza == CASILLA_VACIA) {
+                if (!exponeReyAJaque(tablero, fila, col, x, y)) {
+                    tablero[x][y].movimiento_valido = true;
+                }
+            } else {
+                // Si es una pieza enemiga, verificar captura
+                if ((tablero[fila][col].pieza > 0 && tablero[x][y].pieza < 0) ||
+                    (tablero[fila][col].pieza < 0 && tablero[x][y].pieza > 0)) {
+                    if (!exponeReyAJaque(tablero, fila, col, x, y)) {
+                        tablero[x][y].movimiento_valido = true;
+                    }
+                }
+                break; // Detener al encontrar cualquier pieza
+            }
+        }
+    }
+}
+
+void calcularMovimientosRey(Casilla tablero[8][8], int fila, int col, bool reyNoSeHaMovido, bool torreCortaNoSeHaMovido, bool torreLargaNoSeHaMovido)
 {
     // Limpiar movimientos válidos antes de calcular
     for (int i = 0; i < 8; ++i)
@@ -221,7 +411,33 @@ void calcularMovimientosRey(Casilla tablero[8][8], int fila, int col)
             }
         }
     }
+
+    // Lógica para el enroque
+    if (!reyNoSeHaMovido)
+    {
+        // Enroque corto
+        if (!torreCortaNoSeHaMovido &&
+            tablero[fila][col + 1].pieza == CASILLA_VACIA &&
+            tablero[fila][col + 2].pieza == CASILLA_VACIA &&
+            !exponeReyAJaque(tablero, fila, col, fila, col + 1) &&
+            !exponeReyAJaque(tablero, fila, col, fila, col + 2))
+        {
+            tablero[fila][col + 2].movimiento_valido = true; // Casilla de destino del rey
+        }
+
+        // Enroque largo
+        if (!torreLargaNoSeHaMovido &&
+            tablero[fila][col - 1].pieza == CASILLA_VACIA &&
+            tablero[fila][col - 2].pieza == CASILLA_VACIA &&
+            tablero[fila][col - 3].pieza == CASILLA_VACIA &&
+            !exponeReyAJaque(tablero, fila, col, fila, col - 1) &&
+            !exponeReyAJaque(tablero, fila, col, fila, col - 2))
+        {
+            tablero[fila][col - 2].movimiento_valido = true; // Casilla de destino del rey
+        }
+    }
 }
+
 void calcularMovimientosAlfil(Casilla tablero[8][8], int fila, int col) {
     // Limpiar movimientos válidos antes de calcular
     for (int i = 0; i < 8; ++i)
